@@ -30,6 +30,11 @@ public class ReminderEntity {
     @JoinColumn(name = "_user", nullable = false)
     private UserEntity user;
 
-    public ReminderEntity(String s, String dosage, String description, UserEntity user) {
+
+    public ReminderEntity(String title, String dosage, String description, UserEntity user) {
+        this.title = title;
+        this.dosage = dosage;
+        this.description = description;
+        this.user = user;
     }
 }

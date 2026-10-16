@@ -27,6 +27,9 @@ public class ReminderDateEntity {
     @OneToOne
     private ReminderEntity reminder;
 
-    public ReminderDateEntity(Date d, boolean b, ReminderEntity reminder) {
+    public ReminderDateEntity(Date date, boolean isCompleted, ReminderEntity reminder) {
+        this.date = date;
+        this.isCompleted = isCompleted;
+        this.reminder = reminder;
     }
 }

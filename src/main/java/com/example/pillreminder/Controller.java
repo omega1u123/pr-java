@@ -13,7 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@RestController("api")
+@RestController()
+@RequestMapping("api")
 @RequiredArgsConstructor
 public class Controller {
     private final ReminderRepository reminderRepository;
@@ -27,27 +28,44 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("allByUserId/{userId:\\s}")
+    @GetMapping("allByUserId/{userId}")
     public ResponseEntity<List<ReminderEntity>> findAllRemindersByUserId(@PathVariable("userId") String userId){
         var user = userRepository.findById(userId).orElseThrow();
         var reminders = reminderRepository.findAllByUser(user);
         return ResponseEntity.ok(reminders);
     }
 
+    @GetMapping("allByUserIdAndDate/{userId}/{date}")
+    public ResponseEntity<List<ReminderDto>> findAllRemindersByUserIdAndDate(@PathVariable("userId") String userId, @PathVariable("date") Date date){
+        var user = userRepository.findById(userId).orElseThrow();
+        var reminders = reminderRepository.findAllByUser(user);
+        var reminderDtoList = new ArrayList<ReminderDto>();
+
+        for(ReminderEntity r : reminders){
+            var reminderDates = reminderDateRepository.findAllByReminderAndDate(r, date);
+            if(reminderDates.isEmpty())
+                continue;
+            reminderDtoList.add(new ReminderDto(r.getId(), r.getTitle(), r.getDosage(), r.getDescription(), reminderDates));
+        }
+
+        return ResponseEntity.ok(reminderDtoList);
+    }
+
     @PostMapping
     public ResponseEntity<ReminderDto> CreateReminder(@RequestBody CreateReminderDto dto){
         var user = userRepository.findById(dto.userId()).orElseThrow();
         var reminder = new ReminderEntity(dto.medicineName(), dto.dosage(), dto.description(), user);
-
+        reminderRepository.save(reminder);
         List<ReminderDateEntity> reminderDates = new ArrayList<>();
+
         if(!dto.dates().isEmpty()){
             for(Date d : dto.dates()){
-                reminderDates.add(new ReminderDateEntity(d, false, reminder));
+                var reminderDate = new ReminderDateEntity(d, false, reminder);
+                reminderDates.add(reminderDate);
             }
             reminderDateRepository.saveAll(reminderDates);
         }
 
-        reminderRepository.save(reminder);
         return ResponseEntity.ok(new ReminderDto(reminder.getId(), reminder.getTitle(), reminder.getDosage(), reminder.getDescription(), reminderDates));
     }
 
@@ -74,6 +92,5 @@ public class Controller {
         reminderDateRepository.save(reminderDate);
         return ResponseEntity.ok(reminderDate);
     }
-
 
 }
