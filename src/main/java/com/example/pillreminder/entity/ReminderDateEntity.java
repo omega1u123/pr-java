@@ -24,7 +24,8 @@ public class ReminderDateEntity {
     @Column(nullable = false)
     private boolean isCompleted;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "reminder_id", nullable = false)
     private ReminderEntity reminder;
 
     public ReminderDateEntity(Date date, boolean isCompleted, ReminderEntity reminder) {

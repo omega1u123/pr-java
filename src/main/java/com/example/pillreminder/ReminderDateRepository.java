@@ -13,5 +13,5 @@ import java.util.UUID;
 public interface ReminderDateRepository extends CrudRepository<ReminderDateEntity, UUID> {
     List<ReminderDateEntity> findAllByReminder(ReminderEntity reminder);
 
-    List<ReminderDateEntity> findAllByReminderAndDate(ReminderEntity reminder, Date date);
+    List<ReminderDateEntity> findAllByReminderAndDateGreaterThanEqualAndDateLessThan(ReminderEntity reminder, Date from, Date to);
 }
